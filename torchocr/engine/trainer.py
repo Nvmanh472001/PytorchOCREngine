@@ -101,7 +101,8 @@ class Trainer(object):
         self.eval_class = build_metric(self.cfg['Metric'])
 
         self.status = load_ckpt(self.model, self.cfg, self.optimizer, self.lr_scheduler)
-
+        self.logger.info("status from ckpt: {}".format(self.status))
+        
         if self.cfg['Global']['distributed']:
             self.model = torch.nn.parallel.DistributedDataParallel(self.model, [self.local_rank], find_unused_parameters=True)
 

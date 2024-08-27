@@ -79,6 +79,14 @@ Train:
         - type: Fliplr
           args:
             p: 0.5
+        # - type: Affine # 旋转数据增强，可选
+        #   args:
+        #     rotate:
+        #     - 0
+        #     - 90
+        #     - 180
+        #     - 270
+        #     fit_output: true
         - type: Affine
           args:
             rotate:

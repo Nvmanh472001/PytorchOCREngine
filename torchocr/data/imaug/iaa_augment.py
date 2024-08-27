@@ -27,7 +27,7 @@ class AugmenterBuilder(object):
             raise RuntimeError('unknown augmenter arg: ' + str(args))
 
     def to_tuple_if_list(self, obj):
-        if isinstance(obj, list):
+        if isinstance(obj, list) and len(obj) == 2:
             return tuple(obj)
         return obj
 
