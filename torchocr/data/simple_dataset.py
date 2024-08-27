@@ -7,7 +7,7 @@ import random
 import traceback
 from torch.utils.data import Dataset
 from .imaug import transform, create_operators
-
+from .cache import cache
 
 class SimpleDataSet(Dataset):
     def __init__(self, config, mode, logger, seed=None):
@@ -44,6 +44,12 @@ class SimpleDataSet(Dataset):
         self.ext_op_transform_idx = dataset_config.get("ext_op_transform_idx",
                                                        2)
         self.need_reset = True in [x < 1 for x in ratio_list]
+
+        self.cache_dir = dataset_config.get('cache_dir', '')
+        self.cache = dataset_config.get('cache', False)
+        if self.cache:
+            os.makedirs(self.cache_dir, exist_ok=True)
+            self.cache_all()
 
     def set_epoch_as_seed(self, seed, dataset_config):
         if self.mode == 'train':
@@ -134,6 +140,9 @@ class SimpleDataSet(Dataset):
             file_name = self._try_parse_filename_list(file_name)
             label = substr[1]
             img_path = os.path.join(self.data_dir, file_name)
+            if self.cache:
+                img_path = cache(img_path, self.cache_dir)
+
             data = {'img_path': img_path, 'label': label}
 
             if not os.path.exists(img_path):
@@ -157,6 +166,22 @@ class SimpleDataSet(Dataset):
 
     def __len__(self):
         return len(self.data_idx_order_list)
+
+    def cache_all(self):
+        from tqdm.contrib.concurrent import thread_map
+        def cache_single(index):
+            file_idx = self.data_idx_order_list[index]
+            data_line = self.data_lines[file_idx]
+            data_line = data_line.decode("utf-8")
+            substr = data_line.strip("\n").split(self.delimiter)
+            file_name = substr[0]
+            file_name = self._try_parse_filename_list(file_name)
+            label = substr[1]
+            img_path = os.path.join(self.data_dir, file_name)
+            img_path = cache(img_path, self.cache_dir)
+
+        idxs = np.arange(len(self.data_idx_order_list))
+        thread_map(cache_single, idxs, max_workers=None, total=len(idxs), desc=f"cache image", unit="item")
 
 
 class MultiScaleDataSet(SimpleDataSet):
