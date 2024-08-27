@@ -107,6 +107,5 @@ if __name__ == '__main__':
     cfg = Config(FLAGS.config)
     FLAGS = vars(FLAGS)
     opt = FLAGS.pop('opt')
-    cfg.merge_dict(FLAGS)
     cfg.merge_dict(opt)
     main(cfg, FLAGS['type'])

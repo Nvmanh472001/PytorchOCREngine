@@ -135,8 +135,6 @@ class Config(object):
 
             del file_cfg[self.BASE_KEY]
             file_cfg = _merge_dict(all_base_cfg, file_cfg)
-        file_cfg['filename'] = os.path.splitext(os.path.split(file_path)[-1])[
-            0]
         return file_cfg
 
     def merge_dict(self, args):
