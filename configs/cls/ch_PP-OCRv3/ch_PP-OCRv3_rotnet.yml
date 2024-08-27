@@ -95,4 +95,3 @@ Eval:
     drop_last: false
     batch_size_per_card: 64
     num_workers: 8
-profiler_options: null
