@@ -56,6 +56,8 @@
 | ch_PP-OCRv3_det_cml  | Y | Student_res 1.766314e-07 <br> Student2_res 3.1212483e-07 <br> Teacher_res 8.829421e-08 | [config](configs/det/ch_PP-OCRv3/ch_PP-OCRv3_det_cml.yml) |
 | ch_PP-OCRv3_det_dml  | Y | ok | [config](configs/det/ch_PP-OCRv3/ch_PP-OCRv3_det_dml.yml) |
 | cls_mv3  | Y | 5.9604645e-08 | [config](configs/cls/cls_mv3.ymll) |
+| ch_PP-OCRv2_det  | N |  | [config](configs/det/ch_PP-OCRv2) |
+| ch_PP-OCRv2_rec  | N |  | [config](configs/rec/ch_PP-OCRv2) |
 
 #### 识别模型
 
