@@ -26,11 +26,9 @@ class CenterLoss(nn.Module):
                     self.centers[key] = torch.from_numpy(char_dict[key])
 
     def __call__(self, predicts, batch):
-        assert isinstance(predicts, (list, tuple))
-        features, predicts = predicts
+        features, predicts = predicts['feat'], predicts['res']
 
-        feats_reshape = torch.reshape(
-            features, [-1, features.shape[-1]]).astype("float64")
+        feats_reshape = torch.reshape(features, [-1, features.shape[-1]])
         label = torch.argmax(predicts, dim=2)
         label = torch.reshape(label, [label.shape[0] * label.shape[1]])
 
@@ -40,17 +38,17 @@ class CenterLoss(nn.Module):
         square_feat = torch.sum(torch.square(feats_reshape),dim=1, keepdim=True)
         square_feat = square_feat.expand([batch_size, self.num_classes])
         square_center = torch.sum(torch.square(self.centers), dim=1, keepdim=True)
-        square_center = square_center.expand([self.num_classes, batch_size]).astype(torch.float64)
+        square_center = square_center.expand([self.num_classes, batch_size])
         square_center = torch.permute(square_center, [1, 0])
 
-        distmat = torch.add(square_feat, square_center)
-        feat_dot_center = torch.matmul(feats_reshape, torch.permute(self.centers, [1, 0]))
+        distmat = torch.add(square_feat, square_center.to(features.device))
+        feat_dot_center = torch.matmul(feats_reshape, torch.permute(self.centers.to(features.device), [1, 0]))
         distmat = distmat - 2.0 * feat_dot_center
 
         #generate the mask
-        classes = torch.arange(self.num_classes, dtype=torch.int)
+        classes = torch.arange(self.num_classes, dtype=torch.int).to(features.device)
         label = torch.unsqueeze(label, 1).expand((batch_size, self.num_classes))
-        mask = torch.equal(classes.expand([batch_size, self.num_classes]), label).astype(torch.float64)
+        mask = torch.equal(classes.expand([batch_size, self.num_classes]), label)
         dist = torch.multiply(distmat, mask)
 
         loss = torch.sum(torch.clip(dist, min=1e-12, max=1e+12)) / batch_size

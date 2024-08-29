@@ -92,10 +92,10 @@ class DistillationDMLLoss(DMLLoss):
                 out2 = out2[self.key]
             if self.maps_name is None:
                 if self.multi_head:
-                    loss = super().forward(out1[self.dis_head],
-                                           out2[self.dis_head])
+                    loss = super().forward(out1[self.dis_head]['res'],
+                                           out2[self.dis_head]['res'])
                 else:
-                    loss = super().forward(out1, out2)
+                    loss = super().forward(out1['res'], out2['res'])
                 if isinstance(loss, dict):
                     for key in loss:
                         loss_dict["{}_{}_{}_{}".format(key, pair[0], pair[1],

@@ -38,13 +38,10 @@ class CTCHead(nn.Module):
             x = self.fc1(x)
             predicts = self.fc2(x)
 
+        result = {'res': predicts}
         if self.return_feats:
-            result = (x, predicts)
-        else:
-            result = predicts
+            result['feat'] = x
 
         if not self.training:
-            predicts = F.softmax(predicts, dim=2)
-            result = predicts
-
-        return {'res': result}
+            result['res'] = F.softmax(result['res'], dim=2)
+        return result
