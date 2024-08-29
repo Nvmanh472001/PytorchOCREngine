@@ -7,12 +7,8 @@ tqdm
 numpy
 tensorboard
 rapidfuzz
-opencv-python<=4.6.0.66
+opencv-python
 cython
-lxml
-premailer
-openpyxl
 attrdict
-Pillow
 pyyaml
 onnxruntime
