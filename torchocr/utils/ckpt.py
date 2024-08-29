@@ -68,5 +68,17 @@ def load_ckpt(model, cfg, optimizer=None, lr_scheduler=None, logger=None):
 
 
 def load_pretrained_params(model, pretrained_model):
-    checkpoint = torch.load(pretrained_model, map_location=torch.device('cpu'))
-    model.load_state_dict(checkpoint['state_dict'], strict=False)
+    logger = get_logger()
+    loaded_state_dict = torch.load(pretrained_model, map_location=torch.device('cpu'))['state_dict']
+    current_model_dict = model.state_dict()
+    new_state_dict = {}
+    for k, v in loaded_state_dict.items():
+        if k not in current_model_dict.keys():
+            logger.info(f"ignore loading parameter: {k}, because it is not in current model")
+            continue
+
+        if current_model_dict[k].size() != v.size():
+            logger.info(f"ignore loading parameter: {k}, because of size mismatch, current size: {current_model_dict[k].size()}, pretrained size: {v.size()}")
+            continue
+        new_state_dict[k] = v
+    model.load_state_dict(new_state_dict, strict=False)
