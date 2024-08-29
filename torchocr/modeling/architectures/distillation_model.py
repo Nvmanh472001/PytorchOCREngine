@@ -1,6 +1,7 @@
 from torch import nn
 from .base_model import BaseModel
 from torchocr.utils.ckpt import load_pretrained_params
+from torchocr.utils.logging import get_logger
 
 __all__ = ['DistillationModel']
 
@@ -13,6 +14,7 @@ class DistillationModel(nn.Module):
             config (dict): the super parameters for module.
         """
         super().__init__()
+        logger = get_logger()
         self.model_list = nn.ModuleDict()
         for key in config["Models"]:
             model_config = config["Models"][key]
@@ -25,6 +27,7 @@ class DistillationModel(nn.Module):
             model = BaseModel(model_config)
             if pretrained is not None:
                 load_pretrained_params(model, pretrained)
+                logger.info("{}, load pretrained model from {}".format(key, pretrained))
             if freeze_params:
                 for param in model.parameters():
                     param.requires_grad = False

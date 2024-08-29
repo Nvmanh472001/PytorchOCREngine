@@ -582,7 +582,7 @@ class DistillationCTCLoss(CTCLoss):
                 out = out[self.key]
             if self.multi_head:
                 assert 'ctc' in out, 'multi head has multi out'
-                loss = super().forward(out['ctc'], batch[:2] + batch[3:])
+                loss = super().forward({'res': out['ctc']}, batch[:2] + batch[3:])
             else:
                 loss = super().forward(out, batch)
             if isinstance(loss, dict):
@@ -616,7 +616,7 @@ class DistillationSARLoss(SARLoss):
                 out = out[self.key]
             if self.multi_head:
                 assert 'sar' in out, 'multi head has multi out'
-                loss = super().forward(out['sar'], batch[:1] + batch[2:])
+                loss = super().forward({'res': out['sar']}, batch[:1] + batch[2:])
             else:
                 loss = super().forward(out, batch)
             if isinstance(loss, dict):
@@ -650,7 +650,7 @@ class DistillationNRTRLoss(CELoss):
                 out = out[self.key]
             if self.multi_head:
                 assert 'nrtr' in out, 'multi head has multi out'
-                loss = super().forward(out['nrtr'], batch[:1] + batch[2:])
+                loss = super().forward({'res': out['nrtr']}, batch[:1] + batch[2:])
             else:
                 loss = super().forward(out, batch)
             if isinstance(loss, dict):

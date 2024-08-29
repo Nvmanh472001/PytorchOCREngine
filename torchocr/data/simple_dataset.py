@@ -114,6 +114,10 @@ class SimpleDataSet(Dataset):
             file_name = self._try_parse_filename_list(file_name)
             label = substr[1]
             img_path = os.path.join(self.data_dir, file_name)
+
+            if self.cache:
+                img_path = cache(img_path, self.cache_dir)
+
             data = {'img_path': img_path, 'label': label}
             if not os.path.exists(img_path):
                 continue
@@ -254,6 +258,9 @@ class MultiScaleDataSet(SimpleDataSet):
             file_name = self._try_parse_filename_list(file_name)
             label = substr[1]
             img_path = os.path.join(self.data_dir, file_name)
+            if self.cache:
+                img_path = cache(img_path, self.cache_dir)
+
             data = {'img_path': img_path, 'label': label}
             if not os.path.exists(img_path):
                 raise Exception("{} does not exist!".format(img_path))
