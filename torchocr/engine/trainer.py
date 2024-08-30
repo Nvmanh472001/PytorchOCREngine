@@ -161,8 +161,8 @@ class Trainer(object):
         eta_meter = AverageMeter()
 
         for epoch in range(start_epoch, epoch_num + 1):
-            if self.train_dataloader.dataset.need_reset:
-                self.train_dataloader = build_dataloader(self.cfg, 'Train', self.logger)
+            if self.train_dataloader.dataset.need_reset and epoch > start_epoch:
+                self.train_dataloader = build_dataloader(self.cfg, 'Train', self.logger, epoch=epoch-1)
             reader_start = time.time()
             for idx, batch in enumerate(self.train_dataloader):
                 batch = [t.to(self.device) for t in batch]

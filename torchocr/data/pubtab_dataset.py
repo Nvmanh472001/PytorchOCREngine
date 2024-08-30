@@ -8,7 +8,7 @@ from .imaug import transform, create_operators
 
 
 class PubTabDataSet(Dataset):
-    def __init__(self, config, mode, logger, seed=None):
+    def __init__(self, config, mode, logger, **kwargs):
         super(PubTabDataSet, self).__init__()
         self.logger = logger
 
@@ -29,7 +29,6 @@ class PubTabDataSet(Dataset):
         self.data_dir = dataset_config['data_dir']
         self.do_shuffle = loader_config['shuffle']
 
-        self.seed = seed
         self.mode = mode.lower()
         logger.info(f"Initialize indexs of datasets: {label_file_list}")
         self.data_lines = self.get_image_info_list(label_file_list, ratio_list)
@@ -48,7 +47,6 @@ class PubTabDataSet(Dataset):
             with open(file, "rb") as f:
                 lines = f.readlines()
                 if self.mode == "train" or ratio_list[idx] < 1.0:
-                    random.seed(self.seed)
                     lines = random.sample(lines,
                                           round(len(lines) * ratio_list[idx]))
                 data_lines.extend(lines)
@@ -75,7 +73,6 @@ class PubTabDataSet(Dataset):
 
     def shuffle_data_random(self):
         if self.do_shuffle:
-            random.seed(self.seed)
             random.shuffle(self.data_lines)
         return
 

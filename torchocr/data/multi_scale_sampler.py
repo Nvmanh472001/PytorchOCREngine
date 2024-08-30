@@ -14,8 +14,7 @@ class MultiScaleSampler(Sampler):
                  divided_factor=[8, 16],
                  is_training=True,
                  ratio_wh=0.8,
-                 max_w=480.,
-                 seed=None):
+                 max_w=480.0):
         """
             multi scale samper
             Args:
@@ -29,7 +28,6 @@ class MultiScaleSampler(Sampler):
         self.data_source = data_source
         self.data_idx_order_list = np.array(data_source.data_idx_order_list)
         self.ds_width = data_source.ds_width
-        self.seed = data_source.seed
         if self.ds_width:
             self.wh_ratio = data_source.wh_ratio
             self.wh_ratio_sort = data_source.wh_ratio_sort
@@ -118,21 +116,13 @@ class MultiScaleSampler(Sampler):
         ]
 
     def __iter__(self):
-        if self.seed is None:
-            random.seed(self.epoch)
-            self.epoch += 1
-        else:
-            random.seed(self.seed)
+        self.epoch += 1
         random.shuffle(self.batchs_in_one_epoch_id)
         for batch_tuple_id in self.batchs_in_one_epoch_id:
             yield self.batchs_in_one_epoch[batch_tuple_id]
 
     def iter(self):
         if self.shuffle:
-            if self.seed is not None:
-                random.seed(self.seed)
-            else:
-                random.seed(self.epoch)
             if not self.ds_width:
                 random.shuffle(self.img_indices)
             random.shuffle(self.img_batch_pairs)

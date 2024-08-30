@@ -10,7 +10,7 @@ from .imaug import transform, create_operators
 from .cache import cache
 
 class SimpleDataSet(Dataset):
-    def __init__(self, config, mode, logger, seed=None):
+    def __init__(self, config, mode, logger, **kwargs):
         super(SimpleDataSet, self).__init__()
         self.logger = logger
         self.mode = mode.lower()
@@ -31,19 +31,19 @@ class SimpleDataSet(Dataset):
         ) == data_source_num, "The length of ratio_list should be the same as the file_list."
         self.data_dir = dataset_config['data_dir']
         self.do_shuffle = loader_config['shuffle']
-        self.seed = seed
         logger.info(f"Initialize indexs of datasets: {label_file_list}")
         self.data_lines = self.get_image_info_list(label_file_list, ratio_list)
         self.data_idx_order_list = list(range(len(self.data_lines)))
         if self.mode == "train" and self.do_shuffle:
             self.shuffle_data_random()
 
-        self.set_epoch_as_seed(self.seed, dataset_config)
+        self.set_epoch_to_transforms(kwargs.get('epoch', 0), dataset_config)
 
         self.ops = create_operators(dataset_config['transforms'], global_config)
         self.ext_op_transform_idx = dataset_config.get("ext_op_transform_idx",
                                                        2)
         self.need_reset = True in [x < 1 for x in ratio_list]
+        self.need_reset = (self.need_reset or dataset_config.get("need_reset_each_epoch", False)) and self.mode == 'train'
 
         self.cache_dir = dataset_config.get('cache_dir', '')
         self.cache = dataset_config.get('cache', False)
@@ -51,7 +51,7 @@ class SimpleDataSet(Dataset):
             os.makedirs(self.cache_dir, exist_ok=True)
             self.cache_all()
 
-    def set_epoch_as_seed(self, seed, dataset_config):
+    def set_epoch_to_transforms(self, epoch, dataset_config):
         if self.mode == 'train':
             try:
                 border_map_id = [index
@@ -60,10 +60,8 @@ class SimpleDataSet(Dataset):
                 shrink_map_id = [index
                     for index, dictionary in enumerate(dataset_config['transforms'])
                     if 'MakeShrinkMap' in dictionary][0]
-                dataset_config['transforms'][border_map_id]['MakeBorderMap'][
-                    'epoch'] = seed if seed is not None else 0
-                dataset_config['transforms'][shrink_map_id]['MakeShrinkMap'][
-                    'epoch'] = seed if seed is not None else 0
+                dataset_config['transforms'][border_map_id]['MakeBorderMap']['epoch'] = epoch
+                dataset_config['transforms'][shrink_map_id]['MakeShrinkMap']['epoch'] = epoch
             except Exception as E:
                 return
 
@@ -75,14 +73,12 @@ class SimpleDataSet(Dataset):
             with open(file, "rb") as f:
                 lines = f.readlines()
                 if self.mode == "train" or ratio_list[idx] < 1.0:
-                    random.seed(self.seed)
                     lines = random.sample(lines,
                                           round(len(lines) * ratio_list[idx]))
                 data_lines.extend(lines)
         return data_lines
 
     def shuffle_data_random(self):
-        random.seed(self.seed)
         random.shuffle(self.data_lines)
         return
 
@@ -189,8 +185,8 @@ class SimpleDataSet(Dataset):
 
 
 class MultiScaleDataSet(SimpleDataSet):
-    def __init__(self, config, mode, logger, seed=None):
-        super(MultiScaleDataSet, self).__init__(config, mode, logger, seed)
+    def __init__(self, config, mode, logger, **kwargs):
+        super(MultiScaleDataSet, self).__init__(config, mode, logger, **kwargs)
         self.ds_width = config[mode]['dataset'].get('ds_width', False)
         if self.ds_width:
             self.wh_aware()

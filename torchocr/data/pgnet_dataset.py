@@ -6,11 +6,10 @@ import random
 
 
 class PGDataSet(Dataset):
-    def __init__(self, config, mode, logger, seed=None):
+    def __init__(self, config, mode, logger, **kwargs):
         super(PGDataSet, self).__init__()
 
         self.logger = logger
-        self.seed = seed
         self.mode = mode
         global_config = config['Global']
         dataset_config = config[mode]['dataset']
@@ -40,7 +39,6 @@ class PGDataSet(Dataset):
 
     def shuffle_data_random(self):
         if self.do_shuffle:
-            random.seed(self.seed)
             random.shuffle(self.data_lines)
         return
 
@@ -52,7 +50,6 @@ class PGDataSet(Dataset):
             with open(file, "rb") as f:
                 lines = f.readlines()
                 if self.mode == "train" or ratio_list[idx] < 1.0:
-                    random.seed(self.seed)
                     lines = random.sample(lines,
                                           round(len(lines) * ratio_list[idx]))
                 data_lines.extend(lines)

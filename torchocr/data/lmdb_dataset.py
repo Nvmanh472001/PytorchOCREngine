@@ -12,7 +12,7 @@ from .imaug import transform, create_operators
 
 
 class LMDBDataSet(Dataset):
-    def __init__(self, config, mode, logger, seed=None):
+    def __init__(self, config, mode, logger, **kwargs):
         super(LMDBDataSet, self).__init__()
 
         global_config = config['Global']

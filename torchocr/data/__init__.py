@@ -19,7 +19,7 @@ __all__ = [
 ]
 
 
-def build_dataloader(config, mode, logger, seed=None):
+def build_dataloader(config, mode, logger, **kwargs):
     config = copy.deepcopy(config)
 
     support_dict = [
@@ -37,7 +37,7 @@ def build_dataloader(config, mode, logger, seed=None):
     assert mode in ['Train', 'Eval', 'Test'
                     ], "Mode should be Train, Eval or Test."
 
-    dataset = eval(module_name)(config, mode, logger, seed)
+    dataset = eval(module_name)(config, mode, logger, **kwargs)
     loader_config = config[mode]['loader']
     batch_size = loader_config['batch_size_per_card']
     drop_last = loader_config['drop_last']
