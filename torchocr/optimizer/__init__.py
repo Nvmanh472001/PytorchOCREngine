@@ -8,7 +8,8 @@ __all__ = ['build_optimizer']
 def build_optimizer(optim_config, lr_scheduler_config, epochs, step_each_epoch, model):
     from . import lr
     config = copy.deepcopy(optim_config)
-    optim = getattr(torch.optim, config.pop('name'))(params=model.parameters(), **config)
+    train_params = filter(lambda p: p.requires_grad, model.parameters())
+    optim = getattr(torch.optim, config.pop('name'))(params=train_params, **config)
 
     lr_config = copy.deepcopy(lr_scheduler_config)
     lr_config.update({'epochs': epochs, 'step_each_epoch': step_each_epoch})
